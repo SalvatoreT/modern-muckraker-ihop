@@ -4,6 +4,7 @@ import scrapy
 class IHOPScraper(scrapy.Spider):
     name = 'ihop_scraper'
     start_urls = ['https://restaurants.ihop.com/']
+    allowed_domains = ['restaurants.ihop.com']
 
     def parse(self, response, **kwargs):
         yield from response.follow_all(css='div.map-list-item a.ga-link', callback=self.parse_subdivision)
@@ -23,6 +24,7 @@ class IHOPScraper(scrapy.Spider):
         }, list(response.css('div.hide-mobile div.day-hour-row'))))
         subdivision_abbr, subdivision = response.xpath('//meta[@name="state"]/@content').get().split(", ")
         yield {
+            'store_id': response.css('div.js-favorite a.ga-link').xpath('@data-fid').get(),
             'subdivision': subdivision,
             'subdivision_abbr': subdivision_abbr,
             'city': response.xpath('//meta[@name="city"]/@content').get(),
